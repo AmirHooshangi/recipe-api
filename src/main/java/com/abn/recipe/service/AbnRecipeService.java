@@ -2,6 +2,7 @@ package com.abn.recipe.service;
 
 import com.abn.recipe.entity.RecipeEntity;
 import com.abn.recipe.dto.Recipe;
+import com.abn.recipe.exception.RecipeNotFoundException;
 import com.abn.recipe.repository.RecipeRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,7 @@ public class AbnRecipeService implements RecipeService {
         //Map recipe to Recipe Entity
         RecipeEntity recipeEntity = modelMapper.map(newRecipe, RecipeEntity.class);
         recipeRepository.save(recipeEntity);
-        return null;
+        return newRecipe;
     }
 
     public Optional<Recipe> getRecipeByID(Integer id){
@@ -32,6 +33,13 @@ public class AbnRecipeService implements RecipeService {
 
     public List<Recipe> fetchAllRecipes(){
         return modelMapper.map(recipeRepository.findAll(), List.class) ;
+    }
+
+    public Recipe updateRecipe(Recipe recipe){
+        recipeRepository.findById(recipe.getId()).orElseThrow(RecipeNotFoundException::new);
+        RecipeEntity recipeEntity = modelMapper.map(recipe, RecipeEntity.class);
+        recipeRepository.save(recipeEntity);
+        return recipe;
     }
 
 }

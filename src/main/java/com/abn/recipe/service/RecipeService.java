@@ -14,4 +14,6 @@ public interface RecipeService {
 
     List<Recipe> fetchAllRecipes();
 
+    Recipe updateRecipe(Recipe recipe);
+
 }

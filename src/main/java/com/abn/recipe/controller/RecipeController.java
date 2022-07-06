@@ -25,6 +25,13 @@ public class RecipeController {
             return ResponseEntity.status(HttpStatus.CREATED).body(savedRecipe);
         }
 
+    @PutMapping("/recipe")
+    public ResponseEntity<Recipe> updateRecipe(@RequestBody Recipe recipe){
+        Recipe savedRecipe = recipeService.updateRecipe(recipe);
+        return ResponseEntity.status(HttpStatus.OK).body(savedRecipe);
+    }
+
+
     @GetMapping("/recipe/{id}")
     public ResponseEntity<Recipe> getRecipe(@PathVariable Integer id) {
         return ResponseEntity.status(HttpStatus.OK)

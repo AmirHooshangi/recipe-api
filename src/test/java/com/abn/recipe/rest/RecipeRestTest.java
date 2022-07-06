@@ -19,9 +19,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.isA;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -103,5 +102,53 @@ public class RecipeRestTest {
                 .andExpect(status().isOk())
                 .andExpect(content()
                         .string(org.hamcrest.Matchers.containsString("\"id\":92")));
+    }
+
+
+    @Test
+    public void GivenExistedRecipe_WhenPutted_ThenResponseIsChanged_Test() throws Exception {
+        Recipe recipe = new Recipe();
+        recipe.setId(555);
+        recipe.setName("Italian Pizza");
+        recipe.setInstructions("Very easy pizza");
+        recipe.setType(DishType.VEGETARIAN);
+        mockingService.createRecipe(recipe);
+
+        recipe.setName("Rashti Pizza");
+        recipe.setInstructions("Very difficult pizza");
+        recipe.setType(DishType.REGULAR);
+
+        this.mockMvc.perform(put("/api/recipe")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(recipe)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content()
+                        .string(org.hamcrest.Matchers.containsString("\"instructions\":\"Very difficult pizza\"")))
+                .andExpect(content()
+                        .string(org.hamcrest.Matchers.containsString("\"type\":\"REGULAR\"")))
+                .andExpect(content()
+                        .string(org.hamcrest.Matchers.containsString("\"name\":\"Rashti Pizza\"")));
+    }
+
+    @Test
+    public void GivenNotExistedRecipe_WhenPutted_ThenResponseNotFoundError_Test() throws Exception {
+        Recipe recipe = new Recipe();
+        recipe.setId(555);
+        recipe.setName("Italian Pizza");
+        recipe.setInstructions("Very easy pizza");
+        recipe.setType(DishType.VEGETARIAN);
+        mockingService.createRecipe(recipe);
+
+        recipe.setId(555555);
+        recipe.setName("Rashti Pizza");
+        recipe.setInstructions("Very difficult pizza");
+        recipe.setType(DishType.REGULAR);
+
+        this.mockMvc.perform(put("/api/recipe")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(recipe)))
+                .andDo(print())
+                .andExpect(status().isNotFound());
     }
 }
