@@ -1,5 +1,6 @@
 package com.abn.recipe.dto;
 
+import com.abn.recipe.entity.DishType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,7 +17,7 @@ public class Recipe {
 	private String name;
     private String instructions;
     //TODO: To enum
-	private String type;
+	private DishType type;
 	private Integer servingNumber;
     private List<Ingredient> ingredientsList = new ArrayList<>();
 }

@@ -9,21 +9,18 @@ import java.util.Date;
 @Entity
 @Table(name = "Recipes")
 public class RecipeEntity {
-	@Id
+
+    @Id
 	private Integer id;
 	
 	@Column(name = "NAME")
 	private String name;
 	
 	@Column(name = "TYPE")
-	private String type;
-	
-	@Column(name = "CDATETIME", nullable=true)
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date creationDateTime;
-	
+	private DishType type;
+
 	@Column(name = "CAPACITY")
-	private Integer servingCapacity;
+	private Integer servingNumber;
 	
 	@Column(name = "INGREDIENTS", nullable=true)
 	private String ingredients;

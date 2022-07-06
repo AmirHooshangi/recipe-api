@@ -3,7 +3,11 @@ package com.abn.recipe.rest;
 
 import com.abn.recipe.controller.RecipeController;
 import com.abn.recipe.dto.Recipe;
+import com.abn.recipe.entity.DishType;
+import com.abn.recipe.repository.RecipeRepository;
+import com.abn.recipe.service.RecipeService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -32,17 +36,23 @@ public class RecipeRestTest {
     @Autowired
     RecipeController controller;
 
+    //for mocking
+    @Autowired
+    RecipeService mockingService;
+
     @Test
     public void contextLoads() throws Exception {
         assertThat(controller).isNotNull();
     }
 
     @Test
-    public void GivenCorrectRecipe_WhenPosted_ThenResponseIsCreated_Test() throws Exception {
+    public void GivenCorrectRecipes_WhenPosted_ThenResponseIsCreated_Test() throws Exception {
         Recipe recipe = new Recipe();
         recipe.setId(1);
         recipe.setName("Italian Pizza");
-        recipe.setInstructions("You cook it easily.");
+        recipe.setInstructions("Very difficult pizza");
+        recipe.setType(DishType.REGULAR);
+
         this.mockMvc.perform(post("/api/recipe")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(recipe)))
@@ -50,9 +60,15 @@ public class RecipeRestTest {
                 .andExpect(status().isCreated());
     }
 
-
     @Test
     public void GivenCorrectRecipeId_WhenGet_ThenResponseIsOK_Test() throws Exception {
+        Recipe recipe = new Recipe();
+        recipe.setId(1);
+        recipe.setName("Italian Pizza");
+        recipe.setInstructions("Very difficult pizza");
+        recipe.setType(DishType.REGULAR);
+        mockingService.createRecipe(recipe);
+
         this.mockMvc.perform(get("/api/recipe/1"))
                         .andDo(print())
                 .andExpect(status().isOk());
@@ -63,5 +79,29 @@ public class RecipeRestTest {
         this.mockMvc.perform(get("/api/recipe/6666"))
                 .andDo(print())
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void AllRecipes_WhenGet_ThenResponseRecipes_Test() throws Exception {
+
+        Recipe recipe = new Recipe();
+        recipe.setId(56);
+        recipe.setName("Italian Pizza");
+        recipe.setInstructions("Very difficult pizza");
+        recipe.setType(DishType.REGULAR);
+        mockingService.createRecipe(recipe);
+
+        Recipe recipe2 = new Recipe();
+        recipe2.setId(92);
+        recipe2.setName("Rashti Pizza");
+        recipe2.setInstructions("Very easy pizza");
+        recipe2.setType(DishType.VEGETARIAN);
+        mockingService.createRecipe(recipe2);
+
+        this.mockMvc.perform(get("/api/recipes"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content()
+                        .string(org.hamcrest.Matchers.containsString("\"id\":92")));
     }
 }

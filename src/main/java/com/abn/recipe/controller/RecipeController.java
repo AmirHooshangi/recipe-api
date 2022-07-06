@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api")
 @Slf4j
@@ -29,4 +31,11 @@ public class RecipeController {
                 .body(recipeService.getRecipeByID(id)
                         .orElseThrow(RecipeNotFoundException::new));
     }
+
+    @GetMapping("/recipes")
+    public ResponseEntity<List<Recipe>> getAllRecipes() {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(recipeService.fetchAllRecipes());
+    }
+
 }
