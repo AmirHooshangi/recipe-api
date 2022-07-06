@@ -151,4 +151,26 @@ public class RecipeRestTest {
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    public void GivenCorrectRecipeId_WhenDelete_ThenResponseIsOK_Test() throws Exception {
+        Recipe recipe = new Recipe();
+        recipe.setId(7);
+        recipe.setName("Italian Pizza");
+        recipe.setInstructions("Very easy pizza");
+        recipe.setType(DishType.VEGETARIAN);
+        mockingService.createRecipe(recipe);
+
+        this.mockMvc.perform(delete("/api/recipe/7"))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void GivenInvalidRecipeId_WhenDelete_ThenResponseIsNotFound_Test() throws Exception {
+        this.mockMvc.perform(delete("/api/recipe/-23"))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+    }
+
 }

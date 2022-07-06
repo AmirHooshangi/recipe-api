@@ -6,6 +6,7 @@ import com.abn.recipe.exception.RecipeNotFoundException;
 import com.abn.recipe.repository.RecipeRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -42,4 +43,11 @@ public class AbnRecipeService implements RecipeService {
         return recipe;
     }
 
+    public void deleteRecipe(Integer id){
+        try {
+            recipeRepository.deleteById(id);
+        }catch (EmptyResultDataAccessException exception){
+            throw new RecipeNotFoundException();
+        }
+    }
 }

@@ -45,4 +45,9 @@ public class RecipeController {
                 .body(recipeService.fetchAllRecipes());
     }
 
+    @DeleteMapping("/recipe/{id}")
+    public ResponseEntity deleteRecipe(@PathVariable Integer id) {
+        recipeService.deleteRecipe(id);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
 }
