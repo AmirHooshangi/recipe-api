@@ -1,4 +1,4 @@
-package com.abn.recipe.bean;
+package com.abn.recipe.entity;
 
 import lombok.Data;
 

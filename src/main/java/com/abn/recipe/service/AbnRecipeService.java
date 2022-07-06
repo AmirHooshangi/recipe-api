@@ -1,6 +1,6 @@
 package com.abn.recipe.service;
 
-import com.abn.recipe.bean.RecipeEntity;
+import com.abn.recipe.entity.RecipeEntity;
 import com.abn.recipe.dto.Recipe;
 import com.abn.recipe.repository.RecipeRepository;
 import org.modelmapper.ModelMapper;
