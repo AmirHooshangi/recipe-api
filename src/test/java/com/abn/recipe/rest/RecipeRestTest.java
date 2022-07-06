@@ -43,7 +43,6 @@ public class RecipeRestTest {
         recipe.setId(1);
         recipe.setName("Italian Pizza");
         recipe.setInstructions("You cook it easily.");
-
         this.mockMvc.perform(post("/api/recipe")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(recipe)))
@@ -52,11 +51,17 @@ public class RecipeRestTest {
     }
 
 
-
     @Test
     public void GivenCorrectRecipeId_WhenGet_ThenResponseIsOK_Test() throws Exception {
         this.mockMvc.perform(get("/api/recipe/1"))
                         .andDo(print())
                 .andExpect(status().isOk());
         }
+
+    @Test
+    public void GivenWrongRecipeId_WhenGet_ThenResponseIsNotFound_Test() throws Exception {
+        this.mockMvc.perform(get("/api/recipe/6666"))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+    }
 }

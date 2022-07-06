@@ -1,6 +1,7 @@
 package com.abn.recipe.controller;
 
 import com.abn.recipe.dto.Recipe;
+import com.abn.recipe.exception.RecipeNotFoundException;
 import com.abn.recipe.service.RecipeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,10 +23,10 @@ public class RecipeController {
             return ResponseEntity.status(HttpStatus.CREATED).body(savedRecipe);
         }
 
-
     @GetMapping("/recipe/{id}")
-    public ResponseEntity<Recipe> getRecipe(@PathVariable Integer id)
-    {
-        return ResponseEntity.status(HttpStatus.OK).body(recipeService.getRecipeByID(id).orElseThrow(IllegalArgumentException::new));
+    public ResponseEntity<Recipe> getRecipe(@PathVariable Integer id) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(recipeService.getRecipeByID(id)
+                        .orElseThrow(RecipeNotFoundException::new));
     }
 }
