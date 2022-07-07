@@ -16,6 +16,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableJpaRepositories("com.abn.*")
 public class RecipeApiApplication implements WebMvcConfigurer {
 
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("swagger-ui.html")
