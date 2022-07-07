@@ -8,6 +8,7 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -16,8 +17,7 @@ public class Recipe {
 	private Integer id;
 	private String name;
     private String instructions;
-    //TODO: To enum
 	private DishType type;
 	private Integer servingNumber;
-    private List<Ingredient> ingredientsList = new ArrayList<>();
+    private String ingredients;
 }

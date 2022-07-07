@@ -18,4 +18,5 @@ public interface RecipeService {
 
     void deleteRecipe(Integer id);
 
+    List<Recipe> dynamicSearch(String complexQuery);
 }

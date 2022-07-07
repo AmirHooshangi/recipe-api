@@ -1,10 +1,15 @@
 package com.abn.recipe.controller;
 
 import com.abn.recipe.dto.Recipe;
+import com.abn.recipe.entity.RecipeEntity;
 import com.abn.recipe.exception.RecipeNotFoundException;
+import com.abn.recipe.repository.RecipeRepository;
+import com.abn.recipe.repository.RecipeSpecification;
+import com.abn.recipe.repository.SearchCriteria;
 import com.abn.recipe.service.RecipeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,10 +24,16 @@ public class RecipeController {
     @Autowired
     RecipeService recipeService;
 
+
     @PostMapping("/recipe")
     public ResponseEntity<Recipe> createRecipe(@RequestBody Recipe recipe){
             Recipe savedRecipe = recipeService.createRecipe(recipe);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedRecipe);
+        }
+
+        @GetMapping("/search")
+        public List<Recipe> test(@RequestParam String searchQuery){
+            return recipeService.dynamicSearch(searchQuery);
         }
 
     @PutMapping("/recipe")

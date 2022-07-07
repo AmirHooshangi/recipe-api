@@ -4,6 +4,7 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.Map;
 
 @Data
 @Entity
@@ -17,9 +18,10 @@ public class RecipeEntity {
 	private String name;
 	
 	@Column(name = "TYPE")
+    @Enumerated(EnumType.STRING)
 	private DishType type;
 
-	@Column(name = "CAPACITY")
+	@Column(name = "SERVING_NUMBER")
 	private Integer servingNumber;
 	
 	@Column(name = "INGREDIENTS", nullable=true)

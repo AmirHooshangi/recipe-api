@@ -4,9 +4,12 @@ import com.abn.recipe.entity.RecipeEntity;
 import com.abn.recipe.dto.Recipe;
 import com.abn.recipe.exception.RecipeNotFoundException;
 import com.abn.recipe.repository.RecipeRepository;
+import com.abn.recipe.repository.RecipeSpecification;
+import com.abn.recipe.repository.SearchCriteria;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -49,5 +52,34 @@ public class AbnRecipeService implements RecipeService {
         }catch (EmptyResultDataAccessException exception){
             throw new RecipeNotFoundException();
         }
+    }
+
+    public List<Recipe> dynamicSearch(String complexQuery){
+
+        String[] queries = complexQuery.split(";");
+        String[] query = queries[0].split(" ");
+        String key = query[0];
+        String operation = query[1];
+        String value = query[2];
+
+        RecipeSpecification spec1 =
+                new RecipeSpecification(new SearchCriteria(key, operation, value));
+
+        Specification<RecipeEntity> specification =  Specification.where(spec1);
+
+        for(int i = 1; i < queries.length; i++) {
+
+            String[] query1 = queries[i].split(" ");
+            String key1 = query1[0];
+            String operation1 = query1[1];
+            String value1 = query1[2];
+
+            specification = Specification.where(spec1).and(new RecipeSpecification(new SearchCriteria(key1, operation1, value1)));
+        }
+        List<RecipeEntity> results =
+                recipeRepository.findAll(specification);
+        System.out.println(results);
+        return modelMapper.map(results, List.class) ;
+
     }
 }
