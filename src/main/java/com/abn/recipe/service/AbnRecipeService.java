@@ -7,10 +7,15 @@ import com.abn.recipe.repository.RecipeRepository;
 import com.abn.recipe.repository.RecipeSpecification;
 import com.abn.recipe.repository.SearchCriteria;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+
+import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
+import java.lang.reflect.Type;
 
 import java.util.List;
 import java.util.Optional;
@@ -78,8 +83,9 @@ public class AbnRecipeService implements RecipeService {
         }
         List<RecipeEntity> results =
                 recipeRepository.findAll(specification);
-        System.out.println(results);
-        return modelMapper.map(results, List.class) ;
+
+        Type listType = new TypeToken<List<Recipe>>(){}.getType();
+        return modelMapper.map(results, listType) ;
 
     }
 }

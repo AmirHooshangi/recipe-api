@@ -86,16 +86,19 @@ public class RecipeRestTest {
         Recipe recipe = new Recipe();
         recipe.setId(56);
         recipe.setName("Italian Pizza");
-        recipe.setInstructions("Very difficult pizza");
+        recipe.setInstructions("Very difficult Pizza");
+        recipe.setIngredients("Cheese 2gr, Bread 1kg");
         recipe.setType(DishType.REGULAR);
         mockingService.createRecipe(recipe);
 
         Recipe recipe2 = new Recipe();
         recipe2.setId(92);
         recipe2.setName("Rashti Pizza");
-        recipe2.setInstructions("Very easy pizza");
+        recipe2.setInstructions("Very easy pizza in the Oven");
+        recipe2.setIngredients("Cheese 2gr, Bread 1kg");
         recipe2.setType(DishType.VEGETARIAN);
         mockingService.createRecipe(recipe2);
+
 
         this.mockMvc.perform(get("/api/recipes"))
                 .andDo(print())
