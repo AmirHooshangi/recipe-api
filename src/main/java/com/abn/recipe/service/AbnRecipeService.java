@@ -20,6 +20,14 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ *
+ *  Service implementation of RecipeService interface.
+ *  This class provides CRUD functionality for Recipes as well as
+ *  writing more complex search filter queries to find Recipes.
+ *
+ * @see RecipeService
+ * */
 @Service
 public class AbnRecipeService implements RecipeService {
 
@@ -29,22 +37,45 @@ public class AbnRecipeService implements RecipeService {
     @Autowired
     RecipeRepository recipeRepository;
 
-    public Recipe createRecipe(Recipe newRecipe) {
-        //Map recipe to Recipe Entity
-        RecipeEntity recipeEntity = modelMapper.map(newRecipe, RecipeEntity.class);
+    /**
+     *  This method creates the incoming Recipe to the database.
+     *  ID should be provided by the caller.
+     * @param recipe  recipe object to be stored.
+     * @return Recipe returns the saved (incoming) object
+     * */
+    public Recipe createRecipe(Recipe recipe) {
+        RecipeEntity recipeEntity = modelMapper.map(recipe, RecipeEntity.class);
         recipeRepository.save(recipeEntity);
-        return newRecipe;
+        return recipe;
     }
 
+    /**
+     *  Method that finds a recipe by its id;
+     * @param id an integer value which is the recipes id
+     * @return Optional<Recipe>
+     * */
     public Optional<Recipe> getRecipeByID(Integer id){
       return recipeRepository.findById(id).map(x -> modelMapper.map(x, Recipe.class));
     }
 
+    /**
+     * Method to get all recipes.
+     * In the upcoming release it will support pagination
+     * @return List<recipe> list all recipes
+     * */
     public List<Recipe> fetchAllRecipes(){
         Type listType = new TypeToken<List<Recipe>>(){}.getType();
         return modelMapper.map(recipeRepository.findAll(), listType) ;
     }
 
+    /**
+     * Updating current recipe by its id. If the corresponding id is not in the database
+     * it will raise RecipeNotFoundException
+     *
+     * @see RecipeNotFoundException
+     * @param recipe recipe with values to be updated
+     * @return an updated recipe
+     * */
     public Recipe updateRecipe(Recipe recipe){
         recipeRepository.findById(recipe.getId()).orElseThrow(RecipeNotFoundException::new);
         RecipeEntity recipeEntity = modelMapper.map(recipe, RecipeEntity.class);
@@ -52,6 +83,10 @@ public class AbnRecipeService implements RecipeService {
         return recipe;
     }
 
+    /**
+     *  Deleting a recipe based on its id
+     * @param id the id which should be deleted
+     * */
     public void deleteRecipe(Integer id){
         try {
             recipeRepository.deleteById(id);
