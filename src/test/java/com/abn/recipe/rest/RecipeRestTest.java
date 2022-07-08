@@ -2,19 +2,29 @@ package com.abn.recipe.rest;
 
 
 import com.abn.recipe.controller.RecipeController;
+import com.abn.recipe.dto.AuthenticationRequest;
 import com.abn.recipe.dto.Recipe;
 import com.abn.recipe.entity.DishType;
+import com.abn.recipe.entity.User;
 import com.abn.recipe.repository.RecipeRepository;
+import com.abn.recipe.repository.UserRepository;
 import com.abn.recipe.service.RecipeService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.jsonpath.JsonPath;
+import jdk.jfr.ContentType;
 import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.Arrays;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,10 +49,34 @@ public class RecipeRestTest {
     @Autowired
     RecipeService mockingService;
 
+    @Autowired
+    UserRepository users;
+    @Autowired
+    PasswordEncoder passwordEncoder;
+
+
     @Test
     public void contextLoads() throws Exception {
         assertThat(controller).isNotNull();
     }
+
+    private String token;
+
+    @BeforeEach
+    public void getToken() throws Exception {
+        
+        String response = this.mockMvc.perform(post("/auth/signin")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().
+                                writeValueAsString(AuthenticationRequest.builder()
+                                        .username("admin").password("@#:OJFL:OI:#J@#@#:IJ#@#OJ#").build())))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        token = JsonPath.read(response, "$.token");
+        System.out.println("the token is: " + token);
+    }
+
 
     @Test
     public void GivenCorrectRecipes_WhenPosted_ThenResponseIsCreated_Test() throws Exception {
@@ -54,6 +88,7 @@ public class RecipeRestTest {
 
         this.mockMvc.perform(post("/api/recipe")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + token)
                         .content(new ObjectMapper().writeValueAsString(recipe)))
                 .andDo(print())
                 .andExpect(status().isCreated());
@@ -68,14 +103,16 @@ public class RecipeRestTest {
         recipe.setType(DishType.REGULAR);
         mockingService.createRecipe(recipe);
 
-        this.mockMvc.perform(get("/api/recipe/1"))
+        this.mockMvc.perform(get("/api/recipe/1")
+                        .header("Authorization", "Bearer " + token))
                         .andDo(print())
                 .andExpect(status().isOk());
         }
 
     @Test
     public void GivenWrongRecipeId_WhenGet_ThenResponseIsNotFound_Test() throws Exception {
-        this.mockMvc.perform(get("/api/recipe/6666"))
+        this.mockMvc.perform(get("/api/recipe/6666")
+                        .header("Authorization", "Bearer " + token))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
@@ -99,8 +136,8 @@ public class RecipeRestTest {
         recipe2.setType(DishType.VEGETARIAN);
         mockingService.createRecipe(recipe2);
 
-
-        this.mockMvc.perform(get("/api/recipes"))
+        this.mockMvc.perform(get("/api/recipes")
+                        .header("Authorization", "Bearer " + token))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content()
@@ -123,6 +160,7 @@ public class RecipeRestTest {
 
         this.mockMvc.perform(put("/api/recipe")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + token)
                         .content(new ObjectMapper().writeValueAsString(recipe)))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -149,6 +187,7 @@ public class RecipeRestTest {
         recipe.setType(DishType.REGULAR);
 
         this.mockMvc.perform(put("/api/recipe")
+                        .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(recipe)))
                 .andDo(print())
@@ -164,14 +203,16 @@ public class RecipeRestTest {
         recipe.setType(DishType.VEGETARIAN);
         mockingService.createRecipe(recipe);
 
-        this.mockMvc.perform(delete("/api/recipe/7"))
+        this.mockMvc.perform(delete("/api/recipe/7")
+                        .header("Authorization", "Bearer " + token))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
 
     @Test
     public void GivenInvalidRecipeId_WhenDelete_ThenResponseIsNotFound_Test() throws Exception {
-        this.mockMvc.perform(delete("/api/recipe/-23"))
+        this.mockMvc.perform(delete("/api/recipe/-23")
+                        .header("Authorization", "Bearer " + token))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
@@ -183,7 +224,8 @@ public class RecipeRestTest {
 
         String searchQuery = "type != VEGETARIAN;";
 
-        this.mockMvc.perform(get("/api/search?searchQuery=" + searchQuery))
+        this.mockMvc.perform(get("/api/search?searchQuery=" + searchQuery)
+                        .header("Authorization", "Bearer " + token))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content()
@@ -199,7 +241,8 @@ public class RecipeRestTest {
         String searchQuery = "type != VEGETARIAN;" +
                 "instructions ~= oil";
 
-        this.mockMvc.perform(get("/api/search?searchQuery=" + searchQuery))
+        this.mockMvc.perform(get("/api/search?searchQuery=" + searchQuery)
+                        .header("Authorization", "Bearer " + token))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content()
@@ -215,7 +258,8 @@ public class RecipeRestTest {
         String searchQuery = "type == VEGETARIAN;" +
                 "instructions ~= shalgham";
 
-        this.mockMvc.perform(get("/api/search?searchQuery=" + searchQuery))
+        this.mockMvc.perform(get("/api/search?searchQuery=" + searchQuery)
+                        .header("Authorization", "Bearer " + token))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().json("[]"));
