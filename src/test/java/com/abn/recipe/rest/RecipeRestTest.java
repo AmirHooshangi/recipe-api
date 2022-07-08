@@ -64,7 +64,7 @@ public class RecipeRestTest {
 
     @BeforeEach
     public void getToken() throws Exception {
-        
+
         String response = this.mockMvc.perform(post("/auth/signin")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().
