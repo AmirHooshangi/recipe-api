@@ -7,6 +7,7 @@ import com.abn.recipe.entity.DishType;
 import com.abn.recipe.repository.RecipeRepository;
 import com.abn.recipe.service.RecipeService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.isA;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -109,7 +109,7 @@ public class RecipeRestTest {
 
 
     @Test
-    public void GivenExistedRecipe_WhenPutted_ThenResponseIsChanged_Test() throws Exception {
+    public void GivenExistedRecipe_WhenPut_ThenResponseIsChanged_Test() throws Exception {
         Recipe recipe = new Recipe();
         recipe.setId(555);
         recipe.setName("Italian Pizza");
@@ -135,7 +135,7 @@ public class RecipeRestTest {
     }
 
     @Test
-    public void GivenNotExistedRecipe_WhenPutted_ThenResponseNotFoundError_Test() throws Exception {
+    public void GivenNotExistedRecipe_WhenPut_ThenResponseNotFoundError_Test() throws Exception {
         Recipe recipe = new Recipe();
         recipe.setId(555);
         recipe.setName("Italian Pizza");
@@ -174,6 +174,80 @@ public class RecipeRestTest {
         this.mockMvc.perform(delete("/api/recipe/-23"))
                 .andDo(print())
                 .andExpect(status().isNotFound());
+    }
+
+
+    @Test
+    public void GivenNonVegetarianSearchQuery_WhenGet_ResponseIsRegularRecipes() throws Exception {
+        mockData();
+
+        String searchQuery = "type != VEGETARIAN;";
+
+        this.mockMvc.perform(get("/api/search?searchQuery=" + searchQuery))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content()
+                        .string(not(org.hamcrest.Matchers.containsString("\"type\":\"VEGETARIAN\""))));
+
+    }
+
+
+    @Test
+    public void GivenValidTypeAndInstructionsSearchQuery_WhenGet_ResponseIsCorrectRecipes() throws Exception {
+        mockData();
+
+        String searchQuery = "type != VEGETARIAN;" +
+                "instructions ~= oil";
+
+        this.mockMvc.perform(get("/api/search?searchQuery=" + searchQuery))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content()
+                        .string(org.hamcrest.Matchers.containsString("\"instructions\":\"You need a lot of oil.\"")))
+                .andExpect(content()
+                .string(org.hamcrest.Matchers.containsString("\"name\":\"Burger\"")));
+
+    }
+
+    @Test
+    public void GivenNotMathcingSearchQuery_WhenGet_ResponseIsEmpty() throws Exception {
+        mockData();
+        String searchQuery = "type == VEGETARIAN;" +
+                "instructions ~= shalgham";
+
+        this.mockMvc.perform(get("/api/search?searchQuery=" + searchQuery))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().json("[]"));
+
+    }
+
+
+        public void mockData(){
+        Recipe recipe = new Recipe();
+        recipe.setId(56);
+        recipe.setName("Italian Pizza");
+        recipe.setInstructions("Very difficult Pizza");
+        recipe.setIngredients("Cheese 2gr, Bread 1kg");
+        recipe.setType(DishType.REGULAR);
+        mockingService.createRecipe(recipe);
+
+        Recipe recipe2 = new Recipe();
+        recipe2.setId(92);
+        recipe2.setName("Rashti Pizza");
+        recipe2.setInstructions("Very easy pizza in the Oven");
+        recipe2.setIngredients("Cheese 2gr, Bread 1kg");
+        recipe2.setType(DishType.VEGETARIAN);
+        mockingService.createRecipe(recipe2);
+
+        Recipe recipe3 = new Recipe();
+        recipe3.setId(92);
+        recipe3.setName("Burger");
+        recipe3.setInstructions("You need a lot of oil.");
+        recipe3.setIngredients("Beef Meet 2kg, Bread 2 pieces");
+        recipe3.setType(DishType.REGULAR);
+        mockingService.createRecipe(recipe3);
+
     }
 
 }

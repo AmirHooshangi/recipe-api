@@ -51,7 +51,7 @@ public class ServiceTest {
                 .as("Recipe is for Burger")
                 .contains("Burger");
     }
-    
+
     @Test
     public void GivenNotExistedSearchQuery_ResponseEmptyList(){
 

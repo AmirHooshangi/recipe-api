@@ -41,7 +41,8 @@ public class AbnRecipeService implements RecipeService {
     }
 
     public List<Recipe> fetchAllRecipes(){
-        return modelMapper.map(recipeRepository.findAll(), List.class) ;
+        Type listType = new TypeToken<List<Recipe>>(){}.getType();
+        return modelMapper.map(recipeRepository.findAll(), listType) ;
     }
 
     public Recipe updateRecipe(Recipe recipe){
@@ -59,6 +60,21 @@ public class AbnRecipeService implements RecipeService {
         }
     }
 
+    /**
+     * This method accepts dynamic search query in the following format:
+     *  key == value; each query ends with ";" and is separated by a space " "
+     *  if more than one criterion is needed we can chain them in this order:
+     *  type != REGULAR; for getting all vegetarian recipes.
+     *  instructions ~= Oven;type != REGULAR;
+     *  Its equivalent to "SELECT * FROM RECIPE WHERE servingNumber = 10 AND type like "%Oven%"
+     * Currently it supports following operators:
+     *   (  ~=  )  => which works like SQL 'LIKE' statement
+     *   (  !=  ) => which works like SQL '<>' statement
+     *   (  ==  ) => which works like SQL '=' statement
+     *
+     * @param complexQuery A query string which contains multiple search criteria
+     *
+     * */
     public List<Recipe> dynamicSearch(String complexQuery){
 
         String[] queries = complexQuery.split(";");
@@ -67,23 +83,19 @@ public class AbnRecipeService implements RecipeService {
         String operation = query[1];
         String value = query[2];
 
-        RecipeSpecification spec1 =
+        RecipeSpecification firstClause =
                 new RecipeSpecification(new SearchCriteria(key, operation, value));
-
-        Specification<RecipeEntity> specification =  Specification.where(spec1);
+        Specification<RecipeEntity> specification =  Specification.where(firstClause);
 
         for(int i = 1; i < queries.length; i++) {
-
             String[] query1 = queries[i].split(" ");
             String key1 = query1[0];
             String operation1 = query1[1];
             String value1 = query1[2];
-
-            specification = Specification.where(spec1).and(new RecipeSpecification(new SearchCriteria(key1, operation1, value1)));
+            specification = Specification.where(firstClause).and(new RecipeSpecification(new SearchCriteria(key1, operation1, value1)));
         }
         List<RecipeEntity> results =
                 recipeRepository.findAll(specification);
-
         Type listType = new TypeToken<List<Recipe>>(){}.getType();
         return modelMapper.map(results, listType) ;
 
