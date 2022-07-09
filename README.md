@@ -1,6 +1,6 @@
 # Recipe API setup and documentation
 
-###Architecture and Design
+### Architecture and Design
 
 Recipe API is designed and implemented in a multi-layer manner as a microservice to be able to
 interact with other microservices via Http REST APIs. This API is implemented using 
