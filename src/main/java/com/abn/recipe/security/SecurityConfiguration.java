@@ -31,11 +31,18 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Autowired
     JwtTokenProvider jwtTokenProvider;
+
     @Bean
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
     }
+
+    private static final String[] AUTH_WHITELIST = {
+            "/swagger-resources/**",
+            "/swagger-ui.html",
+            "/v2/api-docs"
+    };
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -47,6 +54,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 .antMatchers("/auth/signin").permitAll()
+                .antMatchers(AUTH_WHITELIST).permitAll()
+                .antMatchers("/swagger-ui/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .apply(new JwtConfigurer(jwtTokenProvider));
