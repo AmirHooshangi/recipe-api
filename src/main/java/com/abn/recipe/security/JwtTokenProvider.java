@@ -1,5 +1,6 @@
 package com.abn.recipe.security;
 
+import com.abn.recipe.exception.GeneralExceptionHandler;
 import com.abn.recipe.exception.InvalidJwtAuthenticationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,6 +38,9 @@ public class JwtTokenProvider {
     @Autowired
     private UserDetailsService userDetailsService;
 
+    @Autowired
+    GeneralExceptionHandler generalExceptionHandler;
+
     @PostConstruct
     protected void init() {
         secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
@@ -71,7 +75,8 @@ public class JwtTokenProvider {
             }
             return true;
         } catch (JwtException | IllegalArgumentException e) {
-            throw new InvalidJwtAuthenticationException("Expired or invalid JWT token");
+            generalExceptionHandler.handleInvalidJWTTokenException(new InvalidJwtAuthenticationException("Expired or invalid JWT token"));
+            return false;
         }
     }
 }

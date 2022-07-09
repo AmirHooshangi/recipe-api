@@ -22,6 +22,12 @@ public class GeneralExceptionHandler extends ResponseEntityExceptionHandler {
         return errorBuilder(ErrorDescription.RECIPE_NOT_FOUND_MSG, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(InvalidJwtAuthenticationException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ResponseEntity<Object> handleInvalidJWTTokenException(InvalidJwtAuthenticationException ex){
+        log.info("JWT is expired or not valid: ");
+        return errorBuilder(ErrorDescription.INVALID_JWT_TOKEN, HttpStatus.FORBIDDEN);
+    }
 
     private ResponseEntity<Object> errorBuilder(String message, HttpStatus status){
         HttpError errorResponse = new HttpError(message, LocalDateTime.now());
