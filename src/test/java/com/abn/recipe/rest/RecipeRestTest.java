@@ -5,16 +5,11 @@ import com.abn.recipe.controller.RecipeController;
 import com.abn.recipe.dto.AuthenticationRequest;
 import com.abn.recipe.dto.Recipe;
 import com.abn.recipe.entity.DishType;
-import com.abn.recipe.entity.User;
-import com.abn.recipe.repository.RecipeRepository;
 import com.abn.recipe.repository.UserRepository;
 import com.abn.recipe.service.RecipeService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
-import jdk.jfr.ContentType;
-import org.hamcrest.MatcherAssert;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +21,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
