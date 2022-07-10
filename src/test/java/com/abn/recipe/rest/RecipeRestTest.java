@@ -23,7 +23,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -85,6 +87,8 @@ public class RecipeRestTest {
         recipe.setName("Italian Pizza");
         recipe.setInstructions("Very difficult pizza");
         recipe.setType(DishType.REGULAR);
+        recipe.setServingNumber(3);
+        recipe.setIngredients("Sabzi");
 
         this.mockMvc.perform(post("/api/recipe")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -267,7 +271,80 @@ public class RecipeRestTest {
     }
 
 
-        public void mockData(){
+    @Test
+    public void GivenBlankUserName_WhenPost_BadRequestRespons_Test() throws JsonProcessingException, UnsupportedEncodingException, Exception{
+        MvcResult result= this.mockMvc.perform(post("/auth/signin")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().
+                                writeValueAsString(AuthenticationRequest.builder()
+                                        .username("")
+                                        .password("@#:OJFL:OI:#J@#@#:IJ#@#OJ#").build())))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(content()
+                        .string(org.hamcrest.Matchers.containsString("username must Not Be Blank")))
+                .andReturn();
+    }
+
+    @Test
+    public void GivenBlankPassword_WhenPost_BadRequestResponse_Test() throws JsonProcessingException, UnsupportedEncodingException, Exception{
+        MvcResult result= this.mockMvc.perform(post("/auth/signin")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().
+                                writeValueAsString(AuthenticationRequest.builder()
+                                        .username("test")
+                                        .password("").build())))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(content()
+                        .string(org.hamcrest.Matchers.containsString("password must Not Be Blank")))
+                .andReturn();
+    }
+
+    @Test
+    public void GivenViolatedMaxServingNumber_WhenPost_BadRequestResponse_Test() throws Exception {
+        Recipe recipe = new Recipe();
+        recipe.setId(43);
+        recipe.setName("Italian Pizza");
+        recipe.setInstructions("Very difficult pizza");
+        recipe.setType(DishType.REGULAR);
+        recipe.setServingNumber(102);
+        recipe.setIngredients("Havij");
+
+        this.mockMvc.perform(post("/api/recipe")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + token)
+                        .content(new ObjectMapper().writeValueAsString(recipe)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("servingNumber size must be less than or equal to 100")))
+                .andReturn();
+    }
+
+    @Test
+    public void GivenValidServingNumberLength_WhenPost_BadRequestResponse_Test() throws Exception {
+        Recipe recipe = new Recipe();
+        recipe.setId(43);
+        recipe.setName("Italian Pizza");
+        recipe.setInstructions("V");
+        recipe.setIngredients("Sabzi");
+
+        recipe.setType(DishType.REGULAR);
+        recipe.setServingNumber(87);
+
+        this.mockMvc.perform(post("/api/recipe")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + token)
+                        .content(new ObjectMapper().writeValueAsString(recipe)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("instructions size must be greater than or equal to 5 ")))
+                .andReturn();
+    }
+
+
+
+    public void mockData(){
         Recipe recipe = new Recipe();
         recipe.setId(56);
         recipe.setName("Italian Pizza");

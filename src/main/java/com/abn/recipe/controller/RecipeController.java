@@ -13,6 +13,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 
@@ -40,7 +41,7 @@ public class RecipeController {
      * @return Recipe returns the saved (incoming) object
      * */
     @PostMapping("/recipe")
-    public ResponseEntity<Recipe> createRecipe(@RequestBody Recipe recipe){
+    public ResponseEntity<Recipe> createRecipe(@Validated @RequestBody Recipe recipe){
         log.info("Request to create new recipe with id: " + recipe.getId());
         Recipe savedRecipe = recipeService.createRecipe(recipe);
         log.info("New recipe saved successfully with id: " + recipe.getId());

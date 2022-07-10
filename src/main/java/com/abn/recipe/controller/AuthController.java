@@ -3,6 +3,9 @@ package com.abn.recipe.controller;
 import com.abn.recipe.dto.AuthenticationRequest;
 import com.abn.recipe.repository.UserRepository;
 import com.abn.recipe.security.JwtTokenProvider;
+
+import lombok.NonNull;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -10,6 +13,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +21,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.validation.Valid;
 
 import static org.springframework.http.ResponseEntity.ok;
 
@@ -32,7 +38,7 @@ public class AuthController {
     UserRepository users;
 
     @PostMapping("/signin")
-    public ResponseEntity signin(@RequestBody AuthenticationRequest data) {
+    public ResponseEntity signin(@Valid @RequestBody AuthenticationRequest data) {
         try {
         String username = data.getUsername();
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, data.getPassword()));
